@@ -42,7 +42,29 @@ public class GetInfFrOWM {    //Get info from OpenWeatherMap.org
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        return (JSONObject) allInfo.get(0);
+
+        if(allInfo.size() == 0){
+            return null;
+        }else{
+            return (JSONObject) allInfo.get(0);
+        }
+    }
+
+    public static String checkCity(String nameCity){
+        String getCity;
+        final String urlAdress = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&appid=%s", nameCity, API);
+        System.out.println(urlAdress);
+        var InfoAboutCity = GetJSON(urlAdress);
+
+        if(InfoAboutCity == null){
+            return null;
+        }
+
+        getCity = ((JSONObject) InfoAboutCity.get("local_names")).get("ru").toString();
+
+
+
+        return getCity;
     }
 
     public static Pair<String, String> getCoordinates(String nameCity){
@@ -50,6 +72,10 @@ public class GetInfFrOWM {    //Get info from OpenWeatherMap.org
         String lon = null;
         final String urlAdress = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&appid=%s", nameCity, API);
         var InfoAboutCity = GetJSON(urlAdress);
+
+        if(InfoAboutCity == null){
+            return new Pair(null, null);
+        }
 
         lat = InfoAboutCity.get("lat").toString();
         lon = InfoAboutCity.get("lon").toString();

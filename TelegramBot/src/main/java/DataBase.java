@@ -20,7 +20,7 @@ public class DataBase {
         }
     }
 
-    public static void add(String id, String name) {
+    public static boolean add(String id, String name) {
         ResultSet resultSet;
         Connection connection = connect();
         try {
@@ -28,34 +28,32 @@ public class DataBase {
             resultSet = statement.executeQuery("SELECT * FROM users WHERE id ='" + id + "'");
             if(resultSet.next()){
                 System.out.println("Пользователь уже есть");
+                return false;
             }else {
                 statement.executeUpdate("INSERT INTO users (id, name, status) VALUES ('" + id + "','" + name + "','user')");
+                return true;
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    public static String changeFavouriteCities(String id, String text) {
+    public static String changeFavouriteCity(String id, String text) {
         Connection connection = connect();
         try {
             Statement statement = connection.createStatement();
-            String[] words = text.split(" ");
-            String[] cities = new String[5];
-            if(words.length > 6){
-                return "Неверный формат";
+            String[] words = text.split(" ", 2);
+            String city = words[1];
+            String foundCity = GetInfFrOWM.checkCity(city);
+
+            if(city.equals(foundCity)){
+                statement.executeUpdate("UPDATE users SET city='" + city + "' WHERE id='" + id + "'");
+                return "Город установлен";
+            }else if(foundCity == null){
+                return "Город не найден, проверьте введенные данные";
             }else{
-                int i = 0;
-                while(i < words.length - 1){
-                    cities[i] = "'" + words[i + 1] + "'";
-                    i++;
-                }
-                while(i < 5){
-                    cities[i] = "NULL";
-                    i++;
-                }
-                statement.executeUpdate("UPDATE users SET city1=" + cities[0] + ", city2=" + cities[1]+ ", city3=" + cities[2]+ ", city4=" + cities[3]+ ", city5=" + cities[4] + " WHERE id='" + id + "'");
-                return "Города установлены";
+                return String.format("Город с таким названием не найден, возможно вы имели ввиду '%s'", foundCity);
             }
 
         } catch (SQLException e) {

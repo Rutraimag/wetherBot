@@ -12,14 +12,16 @@ public class MessageToBot {
         }
         String request = msg.getText();
         if(request.equals("/start")){
-            DataBase.add(String.valueOf(msg.getChatId()), msg.getFrom().getFirstName());    //TODO сделать возварат булл значения. True добавил. False уже есть пользователь
-                                                                                            //TODO если true, то вернуть сообщение как в /help. если False, то вернуть по типу "бот уже работает"
-            return "При первом нажатии по сути будет возвращать, что и /help. Потом ничего не будет возвращать.";
+            if(DataBase.add(String.valueOf(msg.getChatId()), msg.getFrom().getFirstName())){
+                return "Возвращает тоже самое, что и /help";  //TODO Отправить пользователю справочную информацию по типу /help;
+            }else{
+                return "Бот уже работает!";
+            }
         }
         if(request.equals("/setcity")){
-            return "Напишите команду в формате '/setcity [город1] [город2] [город3] [город4] [город5]'";
-        }else if(request.contains("/setcity")){
-            String answer = DataBase.changeFavouriteCities(String.valueOf(msg.getChatId()), request); //TODO Предусмотреть вариант, когда пишут город из двух слов (Великий Новгород) и обрабатывать билеберду.
+            return "Напишите команду в формате '/setcity [Название города]'";
+        }else if(request.split(" ")[0].equals("/setcity")){
+            String answer = DataBase.changeFavouriteCity(String.valueOf(msg.getChatId()), request); //TODO Предусмотреть вариант, когда пишут город из двух слов (Великий Новгород) и обрабатывать билеберду.
             return answer;                                                                            //TODO Возможно делегировать Ярику сделать метод парсера, для проверки существования города
         }
         if(request.equals("/admin")){
