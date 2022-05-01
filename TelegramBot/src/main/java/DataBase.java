@@ -4,8 +4,8 @@ import java.sql.*;
 
 public class DataBase {
 
-    private static final String driverName = "org.postgresql.Driver";   //com.mysql.cj.jdbc.Driver
-    private static final String connectionString = "jdbc:postgresql://localhost:5432/weatherbot";  //jdbc:mysql://localhost/weatherbot?serverTimezone=Europe/Moscow&useSSL=false
+    private static final String driverName = "org.postgresql.Driver";
+    private static final String connectionString = "jdbc:postgresql://localhost:5432/weatherbot";
     private static final String login = "root";
     private static final String password = "root";
 
