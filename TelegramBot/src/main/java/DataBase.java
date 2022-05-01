@@ -39,26 +39,41 @@ public class DataBase {
         }
     }
 
-    public static String changeFavouriteCity(String id, String text) {
+    public static String setFavouriteCity(String id, String text) {
         Connection connection = connect();
         try {
             Statement statement = connection.createStatement();
             String[] words = text.split(" ", 2);
             String city = words[1];
-            String foundCity = GetInfFrOWM.checkCity(city);
+            String check = GetInfFrOWM.checker(city);
 
-            if(city.equals(foundCity)){
+            if(check == null){
                 statement.executeUpdate("UPDATE users SET city='" + city + "' WHERE id='" + id + "'");
                 return "Город установлен";
-            }else if(foundCity == null){
-                return "Город не найден, проверьте введенные данные";
             }else{
-                return String.format("Город с таким названием не найден, возможно вы имели ввиду '%s'", foundCity);
+                return check;
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             return "Произошла ошибка";
+        }
+    }
+
+    public static String getFavouriteCity(String id){
+        Connection connection = connect();
+        try{
+            Statement statement = connection.createStatement();
+            var resultSet = statement.executeQuery("SELECT * FROM users WHERE id ='" + id + "'");
+            if(resultSet.next()){
+                var city = resultSet.getString("city");
+                if(city == "NULL") return null;
+                return city;
+            }else{
+                return null;
+            }
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

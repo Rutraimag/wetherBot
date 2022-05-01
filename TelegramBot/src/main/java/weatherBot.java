@@ -20,7 +20,6 @@ public class weatherBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if(update.hasMessage()) {
-            System.out.println(update.getMessage());
             MessageToBot mToB = new MessageToBot(update.getMessage());
             String text = mToB.getAnswer();
             String id = String.valueOf(update.getMessage().getChatId());

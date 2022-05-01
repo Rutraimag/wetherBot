@@ -10,15 +10,28 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 
 public class GetInfFrOWM {    //Get info from OpenWeatherMap.org
-    private static String API = "ff8a0bead72382d0ab07d8ab63523a66";
+    private static final String API = "ff8a0bead72382d0ab07d8ab63523a66";
     private static URLConnection urlConnection = null;
     private static URL urls = null;
     private static InputStreamReader isR = null;
     private static BufferedReader bfR = null;
 
-    private static String GetHTML(String urlAdress){
+    public static String checker(String city){
+        String foundCity = GetInfFrOWM.checkCity(city);
+
+        if(city.equals(foundCity)){
+            return null;
+        }else if(foundCity == null){
+            return "Город не найден, проверьте введенные данные";
+        }else{
+            return String.format("Город с таким названием не найден, возможно вы имели ввиду '%s'", foundCity);
+        }
+    }
+
+    private static String getHTML(String urlAdress){
         try {
             urls = new URL(urlAdress);
             urlConnection = urls.openConnection();
@@ -26,17 +39,15 @@ public class GetInfFrOWM {    //Get info from OpenWeatherMap.org
             bfR = new BufferedReader(isR);
 
             return bfR.readLine();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static JSONObject GetJSON(String urlAdress){
+    private static JSONObject getJSONAr(String urlAdress){
         JSONArray allInfo = null;
         try {
-            var htmlText = GetHTML(urlAdress);
+            var htmlText = getHTML(urlAdress);
             var parser = new JSONParser();
             allInfo = (JSONArray) parser.parse(htmlText);
         } catch (ParseException e) {
@@ -50,11 +61,28 @@ public class GetInfFrOWM {    //Get info from OpenWeatherMap.org
         }
     }
 
-    public static String checkCity(String nameCity){
+    private static JSONObject getJSONOb(String urlAdress){
+        JSONObject allInfo = null;
+        try {
+            var htmlText = getHTML(urlAdress);
+            var parser = new JSONParser();
+            allInfo = (JSONObject) parser.parse(htmlText);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        if(allInfo.size() == 0){
+            return null;
+        }else{
+            return allInfo;
+        }
+    }
+
+    private static String checkCity(String nameCity){
         String getCity;
         final String urlAdress = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&appid=%s", nameCity, API);
         System.out.println(urlAdress);
-        var InfoAboutCity = GetJSON(urlAdress);
+        var InfoAboutCity = getJSONAr(urlAdress);
 
         if(InfoAboutCity == null){
             return null;
@@ -67,19 +95,30 @@ public class GetInfFrOWM {    //Get info from OpenWeatherMap.org
         return getCity;
     }
 
-    public static Pair<String, String> getCoordinates(String nameCity){
+    private static Pair<String, String> getCoordinates(String nameCity){
         String lat = null;
         String lon = null;
         final String urlAdress = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&appid=%s", nameCity, API);
-        var InfoAboutCity = GetJSON(urlAdress);
-
-        if(InfoAboutCity == null){
-            return new Pair(null, null);
-        }
+        var InfoAboutCity = getJSONAr(urlAdress);
 
         lat = InfoAboutCity.get("lat").toString();
         lon = InfoAboutCity.get("lon").toString();
 
         return new Pair(lat, lon);
+    }
+
+    public static HashMap<String, String> getWeatherInCity(String city){
+        var coord = getCoordinates(city);
+        String lat = coord.getFirst();
+        String lon = coord.getSecond();
+        final String urlAdress = String.format("https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&lang=ru&appid=%s&units=metric", lat, lon, API);
+        var InfoAboutCity = getJSONOb(urlAdress);
+        var outInfo = new HashMap<String, String>();
+
+        outInfo.put("description", ((JSONObject)((JSONArray) InfoAboutCity.get("weather")).get(0)).get("description").toString());
+        outInfo.put("temp", ((JSONObject)InfoAboutCity.get("main")).get("temp").toString());
+        outInfo.put("feels_like", ((JSONObject)InfoAboutCity.get("main")).get("feels_like").toString());
+
+        return outInfo;
     }
 }
