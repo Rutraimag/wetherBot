@@ -26,7 +26,7 @@ public class MessageToBot {
             return "Команды админа и статистика";
         }
         if(request.equals("/weathernow")){
-            return "Напишите команду в формате '/setcity [Номер города из предложенных или название]'";
+            return "Напишите команду в формате '/weathernow [Номер города из предложенных или название]'";
         }
         if(request.equals("/help")){
             return "Справочная инфа";

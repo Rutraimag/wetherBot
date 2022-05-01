@@ -4,10 +4,10 @@ import java.sql.*;
 
 public class DataBase {
 
-    private static final String driverName = "com.mysql.cj.jdbc.Driver";
-    private static final String connectionString = "jdbc:mysql://localhost/weatherbot?serverTimezone=Europe/Moscow&useSSL=false";
+    private static final String driverName = "org.postgresql.Driver";   //com.mysql.cj.jdbc.Driver
+    private static final String connectionString = "jdbc:postgresql://localhost:5432/weatherbot";  //jdbc:mysql://localhost/weatherbot?serverTimezone=Europe/Moscow&useSSL=false
     private static final String login = "root";
-    private static final String password = "";
+    private static final String password = "root";
 
     private static Connection connect(){
         try {
@@ -29,7 +29,7 @@ public class DataBase {
             if(resultSet.next()){
                 System.out.println("Пользователь уже есть");
             }else {
-                statement.executeUpdate("INSERT users(id, name, status) VALUES ('" + id + "','" + name + "','user')");
+                statement.executeUpdate("INSERT INTO users (id, name, status) VALUES ('" + id + "','" + name + "','user')");
             }
         } catch (SQLException e) {
             e.printStackTrace();
