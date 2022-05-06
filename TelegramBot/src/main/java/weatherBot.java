@@ -8,9 +8,7 @@ public class weatherBot extends TelegramLongPollingBot {
     private final String TOKEN = "5171567953:AAFIwRL5AVdNgLKZJdwV8qfSqVPWEQ7N_j8";
 
     @Override
-    public String getBotUsername() {
-        return NAME;
-    }
+    public String getBotUsername() { return NAME; }
 
     @Override
     public String getBotToken() {
